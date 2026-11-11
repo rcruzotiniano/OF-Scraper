@@ -13,12 +13,17 @@ def run(
     capture_output=None,
     level=None,
     name=None,
-    timeout=600, 
+    timeout=3600,
     **kwargs,
 ):
     """
     Executes a command, automatically using the current Python interpreter
     for .py files.
+
+    NOTE: the default timeout used to be 600s, too tight for ffmpeg
+    decrypting/remuxing large videos. It produced
+    "Subprocess ffmpeg timed out after 600 seconds" and the media was marked
+    as failed. 3600s keeps a guard rail without killing legitimate work.
     """
     log = log or logging.getLogger("shared")
 

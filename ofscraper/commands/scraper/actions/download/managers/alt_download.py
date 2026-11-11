@@ -152,7 +152,14 @@ class AltDownloadManager(DownloadManager):
     async def _alt_download_sendreq(self, item, c, ele, placeholderObj):
         try:
             _attempt = self._alt_attempt_get(item)
-            base_url = re.sub("[0-9a-z]*\.mpd$", "", ele.mpd, re.IGNORECASE)
+            # NOTE: the manifest URL may now carry a query string (e.g. "?Tag=2"),
+            # so the ".mpd" suffix is no longer at the very end of the string.
+            # Strip any query before removing the manifest name, otherwise the
+            # track URL is built on top of the manifest and the CDN returns the
+            # DASH manifest (application/dash+xml) instead of the media track.
+            base_url = re.sub(
+                "[0-9a-z]*\.mpd$", "", ele.mpd.split("?")[0], re.IGNORECASE
+            )
             url = f"{base_url}{item['origname']}"
             common_globals.log.debug(
                 f"{get_medialog(ele)} Attempting to download media {item['origname']} with {url}"
@@ -176,7 +183,14 @@ class AltDownloadManager(DownloadManager):
             total = None
             common_globals.log.debug(f"{get_medialog(ele)} resume header {headers}")
             params = get_alt_params(ele)
-            base_url = re.sub("[0-9a-z]*\.mpd$", "", ele.mpd, re.IGNORECASE)
+            # NOTE: the manifest URL may now carry a query string (e.g. "?Tag=2"),
+            # so the ".mpd" suffix is no longer at the very end of the string.
+            # Strip any query before removing the manifest name, otherwise the
+            # track URL is built on top of the manifest and the CDN returns the
+            # DASH manifest (application/dash+xml) instead of the media track.
+            base_url = re.sub(
+                "[0-9a-z]*\.mpd$", "", ele.mpd.split("?")[0], re.IGNORECASE
+            )
             url = f"{base_url}{item['origname']}"
             headers = {"Cookie": f"{ele.hls_header}{auth_requests.get_cookies_str()}"}
             common_globals.log.debug(
